@@ -1,0 +1,13 @@
+*.key
+*.json
+*.pickle
+
+/__pycahe__
+/.idea
+/Ignore
+/Data
+/MyData
+
+lab.py
+lab.ipynb
+test.ipynb
