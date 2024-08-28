@@ -9,4 +9,4 @@ def setUpModel(path):
     with open(path, 'r') as f:
         data = json.load(f)
 
-    os.environ['GEMINI_API_KEY'] = data['GeminiKey']
+    os.environ['GOOGLE_API_KEY'] = data['GeminiKey']

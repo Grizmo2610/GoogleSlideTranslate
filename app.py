@@ -22,7 +22,7 @@ def get_presentation_id(url: str):
 
 console = Console()
 
-model = SlideTranslate(100)
+model = SlideTranslate(30)
 
 console.print(Markdown('# Enter your Google Slides presentation URL. We only handle presentations saved in Google Slides format.'))
 url = input('> ')
@@ -31,5 +31,5 @@ presentation_id = get_presentation_id(url)
 console.print(Markdown('# Which language you want to translate to?'))
 target_language = input('> ')
 
-model.translated_slide(presentation_id, target_language=target_language)
+model.translated_slide(presentation_id, target_language=target_language, major='IT')
 console.print(Markdown('# Finished! Your slide have been translated!'))
