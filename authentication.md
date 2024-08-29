@@ -10,12 +10,13 @@
 3. Name your project and select the billing account if necessary.
 4. Click **Create**.
 
-## Step 3: Enable Google Slides API
+## Step 3: Enable API
 1. Once the project is created, in the dashboard, click on **API & Services**.
 2. Select **Library**.
-3. In the search bar, type **Google Slides API**.
-4. Select **Google Slides API** from the search results.
+3. In the search bar, type **Google Slides API** and **Generative AI API**.
+4. Select **Google Slides API** and **Generative AI API** from the search results.
 5. Click **Enable**.
+6. Wait until they are all active
 
 ## Step 4: Create API Key
 1. Go back to **API & Services** from the dashboard.

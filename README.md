@@ -31,7 +31,7 @@ Additionally, a file named `token.pickle` will be generated after authentication
 
 In the `app.py` file, set the maximum number of requests. Note, the heavier the slide (more pages, more content), the lower the limit should be (less than 10 is best).
 
-At first time run, you will need 
+ở lần chạy đầu tiên, bạn sẽ cần đăng nhập và xác thực trên web. Chỉ cần đăng nhập như bình thường là chương trình sẽ chạy được.
 
 Run the `app.py` file and wait for the necessary libraries to install. Once completed, enter the link to your Google Slides presentation and paste it. Then, select the language you want to translate into. You can write in any format/language (e.g., vie, vietnamese, vietnam, Việt Nam, Tiếng Việt, etc.), all will be accepted.
 
