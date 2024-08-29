@@ -22,9 +22,9 @@ def get_presentation_id(url: str):
 
 console = Console()
 
-max_slide = 5
+max_slide = 1
 
-model = SlideTranslate(5)
+model = SlideTranslate(max_slide)
 
 console.print(Markdown('# Enter your Google Slides presentation URL. We only handle presentations saved in Google Slides format.'))
 url = input('> ')
