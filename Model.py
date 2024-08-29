@@ -29,7 +29,7 @@ TOKEN_FILE = 'Data/token.pickle'  # Path to the file for storing authentication 
 # Scopes defining the permissions requested by the application
 SCOPES = [
     'https://www.googleapis.com/auth/presentations',  # Permission to manage Google Slides presentations
-    'google.cloud.translate.v2.TranslateService.TranslateText'  # Permission to use Google Cloud Translation API
+    # 'google.cloud.translate.v2.TranslateService.TranslateText'  # Permission to use Google Cloud Translation API
 ]
 
 def get_credentials():
@@ -131,6 +131,10 @@ class SlideTranslate:
         all_response = []
         # Sort requests by text length in descending order to prioritize longer texts
         all_request.sort(key=lambda x: len(x['replaceAllText']['containsText']['text']), reverse=True)
+        
+        with open('Data/Requests.jsonl', 'w', encoding='utf-8') as f:
+            for r in all_request:
+                f.write(json.dumps(r, indent=4) + '\n')
         
         print(f'Request size: {len(all_request)}')
         # Split requests into batches if the number exceeds the maximum allowed
