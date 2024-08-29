@@ -215,7 +215,7 @@ class SlideTranslate:
         exception_slides = []  # List to store elements that failed translation
 
         # Iterate through each slide and its elements to extract and translate text
-        for i in range(len(slides[:5])):
+        for i in range(len(slides)):
             print(f'Processing slide {i+1}/{len(slides)}')
             slide = slides[i]
             elements = slide.get('pageElements')
