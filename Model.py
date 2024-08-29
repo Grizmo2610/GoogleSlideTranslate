@@ -11,6 +11,11 @@ from google.generativeai import GenerativeModel
 import os
 import pickle
 import setup
+import json
+import sys
+
+
+sys.setrecursionlimit(100)
 
 if not os.path.exists('./Data'):
     os.makedirs('./Data')
@@ -129,55 +134,44 @@ class SlideTranslate:
         
         print(f'Request size: {len(all_request)}')
         # Split requests into batches if the number exceeds the maximum allowed
-        if len(all_request) > self.max_request:
-            for i in range(0, len(all_request), self.max_request):
-                body = {'requests': all_request[i:i+self.max_request]}  # Prepare batch request body
-                all_response.append(
-                    self.service.presentations().batchUpdate(
-                        presentationId=presentation_id, 
-                        body=body
-                    ).execute()
-                )
-        else:
-            # If the number of requests is within the limit, send them in one batch
-            body = {'requests': all_request}
-            all_response = self.service.presentations().batchUpdate(
-                presentationId=presentation_id, body=body
-            ).execute()
+        if all_request:
+            if len(all_request) > self.max_request:
+                for i in range(0, len(all_request), self.max_request):
+                    print(f'{i}/{len(all_request)}')
+                    body = {'requests': all_request[i:i+self.max_request]}  # Prepare batch request body
+                    all_response.append(
+                        self.service.presentations().batchUpdate(
+                            presentationId=presentation_id, 
+                            body=body
+                        ).execute()
+                    )
+            else:
+                # If the number of requests is within the limit, send them in one batch
+                body = {'requests': all_request}
+                all_response = self.service.presentations().batchUpdate(
+                    presentationId=presentation_id, body=body
+                ).execute()
+            
+            return all_response  # Return the responses from the Google Slides API
+
+    def find_text_in_group(self, elements):
+        texts = []
         
-        return all_response  # Return the responses from the Google Slides API
+        for element in elements:
+            if 'shape' in element:
+                text_elements = element['shape'].get('text')
+                if text_elements:
+                    text_elements = text_elements['textElements']
+                    for text in text_elements:
+                        if 'textRun' in text:
+                            texts.append(text['textRun']['content'])
 
-    def get_text_from_element(self, element: dict) -> list:
-        """
-        Extract text from various elements within a slide.
+            elif 'elementGroup' in element:
+                group_elements = element['elementGroup'].get('children')
+                if group_elements:
+                    texts.extend(self.find_text_in_group(group_elements))
 
-        Args:
-            element (dict): The slide element from which text is to be extracted.
-
-        Returns:
-            list: A list of extracted text strings.
-        """
-        text_list = []
-        if 'elementGroup' in element:
-            # Extract text from element groups
-            group_text_list = []
-            for group_element in element['elementGroup']['children']:
-                if 'shape' in group_element:
-                    group_text_list.extend(self.get_text_from_element(group_element))
-            text_list.extend(group_text_list)
-        elif 'table' in element:
-            # Extract text from tables
-            for row in element['table']['tableRows']:
-                for cell in row['tableCells']:
-                    for cell_element in cell['content']:
-                        text_list.extend(self.get_text_from_element(cell_element))
-        elif 'shape' in element:
-            # Extract text from shapes
-            text_elements = element['shape']['text']['textElements']
-            for text in text_elements:
-                if 'textRun' in text:
-                    text_list.extend(text['textRun']['content'])
-        return text_list  # Return the list of extracted text
+        return texts
 
     def generate_body(self, translated_text: str, current_text: str) -> dict:
         """
@@ -221,14 +215,14 @@ class SlideTranslate:
         exception_slides = []  # List to store elements that failed translation
 
         # Iterate through each slide and its elements to extract and translate text
-        for i in range(len(slides)):
+        for i in range(len(slides[:5])):
             print(f'Processing slide {i+1}/{len(slides)}')
             slide = slides[i]
-            slide_content = slide.get('pageElements', [])
-            for element in slide_content:
+            elements = slide.get('pageElements')
+            all_text = self.find_text_in_group(elements)
+            for current_text in all_text:
                 try:
                     # Extract text from the current element
-                    current_text = ''.join(self.get_text_from_element(element))
                     if isinstance(current_text, str):
                         # If the text is a string and valid for translation
                         if current_text and len(current_text) >= 5:
@@ -244,7 +238,7 @@ class SlideTranslate:
                                 all_request.append(self.generate_body(translated_text, text))
                 except Exception as e:
                     # If an error occurs, add the element to the exception list
-                    exception_slides.append(element)           
+                    exception_slides.append(current_text)           
         # Send all collected requests in batches and get the response
         all_response = self.make_request(all_request, presentation_id)
         return exception_slides, all_response  # Return failed elements and API responses
